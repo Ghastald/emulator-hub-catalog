@@ -1,0 +1,113 @@
+{
+  "catalog_version": "1.0.0",
+  "updated_at": "2026-05-20",
+  "emulators": [
+    {
+      "id": "retroarch",
+      "name": "RetroArch",
+      "description": "Multi-system frontend using libretro cores. Covers NES, SNES, GBA, PS1, N64, and many more with shader support.",
+      "platforms": ["multi"],
+      "tags": ["frontend", "cores", "shaders"],
+      "icon_url": null,
+      "sources": {
+        "github": {
+          "owner": "libretro",
+          "repo": "RetroArch",
+          "asset_pattern": "RetroArch-v*-arm64-v8a.apk"
+        },
+        "play_store": { "package_id": "com.retroarch" }
+      },
+      "config": {
+        "supported": true,
+        "format": "cfg",
+        "target_path_hint": "RetroArch/",
+        "profiles": [
+          {
+            "id": "retroarch_generic",
+            "name": "Generic baseline",
+            "description": "Sensible defaults for any Android device.",
+            "files": [
+              { "src": "assets/configs/retroarch/generic/retroarch.cfg", "dest": "retroarch.cfg" },
+              { "src": "assets/configs/retroarch/generic/retroarch-core-options.cfg", "dest": "retroarch-core-options.cfg" }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "ppsspp",
+      "name": "PPSSPP",
+      "description": "Fast and accurate PSP emulator. Supports upscaling, texture replacement, and save state sync.",
+      "platforms": ["psp"],
+      "tags": ["psp"],
+      "icon_url": null,
+      "sources": {
+        "github": {
+          "owner": "hrydgard",
+          "repo": "ppsspp",
+          "asset_pattern": "PPSSPPAndroid-*.apk"
+        },
+        "play_store": { "package_id": "org.ppsspp.ppsspp" }
+      },
+      "config": {
+        "supported": true,
+        "format": "ini",
+        "target_path_hint": "PSP/SYSTEM/",
+        "profiles": [
+          {
+            "id": "ppsspp_generic",
+            "name": "Generic baseline",
+            "description": "Balanced defaults suitable for most devices.",
+            "files": [
+              { "src": "assets/configs/ppsspp/generic/ppsspp.ini", "dest": "ppsspp.ini" }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "dolphin",
+      "name": "Dolphin",
+      "description": "GameCube and Wii emulator. Requires a capable SoC — Snapdragon 8 Gen 2 handles it well.",
+      "platforms": ["gamecube", "wii"],
+      "tags": ["gamecube", "wii", "demanding"],
+      "icon_url": null,
+      "sources": {
+        "github": {
+          "owner": "dolphin-emu",
+          "repo": "dolphin",
+          "asset_pattern": "dolphin-*.apk"
+        },
+        "play_store": { "package_id": "org.dolphinemu.dolphinemu" }
+      },
+      "config": {
+        "supported": false,
+        "format": "ini",
+        "target_path_hint": "dolphin-emu/Config/",
+        "profiles": []
+      }
+    },
+    {
+      "id": "duckstation",
+      "name": "DuckStation",
+      "description": "PlayStation 1 emulator focused on accuracy and enhancement. Best PS1 experience on Android.",
+      "platforms": ["ps1"],
+      "tags": ["ps1", "accuracy"],
+      "icon_url": null,
+      "sources": {
+        "github": {
+          "owner": "stenzek",
+          "repo": "duckstation",
+          "asset_pattern": "duckstation-android-aarch64-release-*.apk"
+        },
+        "play_store": null
+      },
+      "config": {
+        "supported": false,
+        "format": "ini",
+        "target_path_hint": "duckstation/",
+        "profiles": []
+      }
+    }
+  ]
+}
