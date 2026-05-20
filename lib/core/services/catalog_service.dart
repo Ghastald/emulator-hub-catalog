@@ -12,7 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/emulator.dart';
 
 const _kCatalogUrl =
-    'https://raw.githubusercontent.com/YOUR_USERNAME/emulator-hub-catalog/main/catalog.json';
+    'https://raw.githubusercontent.com/Ghastald/emulator-hub-catalog/main/assets/catalog.json';
 const _kCacheKey = 'catalog_json_cache';
 const _kCacheTimeKey = 'catalog_cache_time';
 const _kCacheTtlHours = 6;
