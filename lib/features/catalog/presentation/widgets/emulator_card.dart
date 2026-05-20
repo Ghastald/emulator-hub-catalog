@@ -2,6 +2,7 @@
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../core/models/emulator.dart';
 import '../../../../shared/theme/app_theme.dart';
 
@@ -21,7 +22,7 @@ class EmulatorCard extends StatelessWidget {
           padding: const EdgeInsets.all(14),
           child: Row(
             children: [
-              _icon(),
+              EmulatorIcon(url: emulator.iconUrl, size: 48),
               const SizedBox(width: 14),
               Expanded(
                 child: Column(
@@ -48,45 +49,16 @@ class EmulatorCard extends StatelessWidget {
     );
   }
 
-  Widget _icon() {
-    if (emulator.iconUrl != null) {
-      return CachedNetworkImage(
-        imageUrl: emulator.iconUrl!,
-        width: 48,
-        height: 48,
-        imageBuilder: (_, img) => Container(
-          width: 48,
-          height: 48,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            image: DecorationImage(image: img, fit: BoxFit.cover),
-          ),
-        ),
-        placeholder: (_, __) => _iconPlaceholder(),
-        errorWidget: (_, __, ___) => _iconPlaceholder(),
-      );
-    }
-    return _iconPlaceholder();
-  }
-
-  Widget _iconPlaceholder() => Container(
-        width: 48,
-        height: 48,
-        decoration: BoxDecoration(
-          color: AppColors.border,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: const Icon(Icons.videogame_asset_outlined,
-            color: AppColors.muted, size: 22),
-      );
-
   Widget _tags(BuildContext ctx) => Wrap(
         spacing: 4,
         runSpacing: 4,
         children: emulator.tags
             .take(3)
-            .map((t) => Chip(label: Text(t), padding: EdgeInsets.zero,
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap))
+            .map((t) => Chip(
+                  label: Text(t),
+                  padding: EdgeInsets.zero,
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ))
             .toList(),
       );
 
@@ -104,5 +76,53 @@ class EmulatorCard extends StatelessWidget {
               child: Icon(Icons.shop_outlined, color: AppColors.muted, size: 18),
             ),
         ],
+      );
+}
+
+/// Reusable rounded-square emulator icon with bundled SVG fallback.
+class EmulatorIcon extends StatelessWidget {
+  final String? url;
+  final double size;
+  final double radius;
+
+  const EmulatorIcon({
+    super.key,
+    required this.url,
+    this.size = 48,
+    this.radius = 10,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (url != null) {
+      return CachedNetworkImage(
+        imageUrl: url!,
+        width: size,
+        height: size,
+        imageBuilder: (_, img) => _frame(child: Image(image: img, fit: BoxFit.cover)),
+        placeholder: (_, __) => _fallback(),
+        errorWidget: (_, __, ___) => _fallback(),
+      );
+    }
+    return _fallback();
+  }
+
+  Widget _frame({required Widget child}) => ClipRRect(
+        borderRadius: BorderRadius.circular(radius),
+        child: SizedBox(width: size, height: size, child: child),
+      );
+
+  Widget _fallback() => Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          color: AppColors.border,
+          borderRadius: BorderRadius.circular(radius),
+        ),
+        padding: EdgeInsets.all(size * 0.18),
+        child: SvgPicture.asset(
+          'assets/icons/fallback.svg',
+          fit: BoxFit.contain,
+        ),
       );
 }

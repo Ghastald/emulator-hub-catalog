@@ -23,14 +23,17 @@ class _ConfigScreenState extends ConsumerState<ConfigScreen> {
     setState(() { _pushing = true; _lastResult = null; });
 
     final service = ref.read(configServiceProvider);
-    final result = await service.pushProfile(
+    final result  = await service.pushProfile(
       emulatorId: widget.emulatorId,
       profile: profile,
       isRooted: isRooted,
     );
 
+    // Folder may have been picked during push — refresh the URI display.
+    ref.invalidate(savedFolderUriProvider(widget.emulatorId));
+
     setState(() {
-      _pushing = false;
+      _pushing   = false;
       _lastResult = result.success
           ? 'Pushed ${result.copiedFiles.length} file(s) successfully.'
           : 'Error: ${result.error}';
@@ -48,56 +51,81 @@ class _ConfigScreenState extends ConsumerState<ConfigScreen> {
           decoration: const InputDecoration(labelText: 'Profile name'),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-          FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Pick files')),
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel')),
+          FilledButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Pick files')),
         ],
       ),
     );
     if (confirmed != true) return;
 
-    final service = ref.read(configServiceProvider);
+    final service  = ref.read(configServiceProvider);
     final imported = await service.importProfile(
       emulatorId: widget.emulatorId,
       profileName: nameController.text,
     );
 
-    if (imported != null && mounted) {
+    if (imported == null || !mounted) return;
+
+    // Persist to the notifier so it survives app restarts.
+    await ref.read(importedProfilesProvider.notifier).add(
+          ImportedProfileMeta(
+            id: imported.id,
+            name: imported.name,
+            emulatorId: widget.emulatorId,
+            importedBasePath: imported.importedBasePath!,
+            fileNames: imported.files.map((f) => f.src).toList(),
+          ),
+        );
+
+    if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Imported "${imported.name}" (${imported.files.length} files)')),
+        SnackBar(
+            content:
+                Text('Imported "${imported.name}" (${imported.files.length} files)')),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final catalog = ref.watch(catalogProvider);
-    final isRooted = ref.watch(isRootedProvider).valueOrNull ?? false;
+    final catalog        = ref.watch(catalogProvider);
+    final isRooted       = ref.watch(isRootedProvider).valueOrNull ?? false;
+    final importedAsync  = ref.watch(importedProfilesProvider);
 
     return catalog.when(
-      loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
+      loading: () =>
+          const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (e, _) => Scaffold(body: Center(child: Text('$e'))),
       data: (c) {
         final emulator = c.emulators.firstWhere((e) => e.id == widget.emulatorId);
-        final cfg = emulator.config;
+        final cfg      = emulator.config;
 
         if (cfg == null || !cfg.supported) {
           return Scaffold(
             appBar: AppBar(title: Text('${emulator.name} — config')),
-            body: const Center(child: Text('No config support for this emulator.')),
+            body: const Center(
+                child: Text('No config support for this emulator.')),
           );
         }
+
+        final myImported = importedAsync.valueOrNull
+                ?.where((m) => m.emulatorId == widget.emulatorId)
+                .toList() ??
+            [];
 
         return Scaffold(
           appBar: AppBar(title: Text('${emulator.name} — config')),
           body: ListView(
             padding: const EdgeInsets.all(20),
             children: [
-              // Root/SAF status banner
               _StatusBanner(isRooted: isRooted, emulatorId: widget.emulatorId),
               const SizedBox(height: 20),
 
-              if (_lastResult != null)
-                _ResultBanner(message: _lastResult!),
+              if (_lastResult != null) _ResultBanner(message: _lastResult!),
 
               Text('Bundled profiles',
                   style: Theme.of(context).textTheme.titleMedium),
@@ -108,6 +136,25 @@ class _ConfigScreenState extends ConsumerState<ConfigScreen> {
                     pushing: _pushing,
                     onPush: () => _pushProfile(p, isRooted),
                   )),
+
+              if (myImported.isNotEmpty) ...[
+                const SizedBox(height: 24),
+                Text('Imported profiles',
+                    style: Theme.of(context).textTheme.titleMedium),
+                const SizedBox(height: 12),
+                ...myImported.map((meta) {
+                  final profile = meta.toConfigProfile();
+                  return _ProfileTile(
+                    profile: profile,
+                    isRooted: isRooted,
+                    pushing: _pushing,
+                    onPush: () => _pushProfile(profile, isRooted),
+                    onDelete: () =>
+                        ref.read(importedProfilesProvider.notifier).remove(meta.id),
+                  );
+                }),
+              ],
+
               const SizedBox(height: 24),
               OutlinedButton.icon(
                 onPressed: () => _importProfile(emulator),
@@ -134,28 +181,67 @@ class _StatusBanner extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final folderAsync = isRooted
+        ? null
+        : ref.watch(savedFolderUriProvider(emulatorId));
+    final savedPath   = folderAsync?.valueOrNull;
+
+    String statusText;
+    if (isRooted) {
+      statusText =
+          'Rooted device — files will be written directly via shell.';
+    } else if (savedPath != null) {
+      statusText = 'Target folder: ${_truncate(savedPath)}';
+    } else {
+      statusText =
+          'Non-rooted — you will be asked to select the target folder once per emulator.';
+    }
+
+    final color = isRooted ? AppColors.amber : AppColors.green;
+
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: (isRooted ? AppColors.amber : AppColors.green).withOpacity(0.1),
+        color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-            color: (isRooted ? AppColors.amber : AppColors.green).withOpacity(0.3)),
+        border: Border.all(color: color.withOpacity(0.3)),
       ),
-      child: Row(children: [
-        Icon(isRooted ? Icons.lock_open : Icons.folder_open,
-            color: isRooted ? AppColors.amber : AppColors.green, size: 18),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Text(
-            isRooted
-                ? 'Rooted device — files will be written directly via shell.'
-                : 'Non-rooted — you will be asked to select the target folder once per emulator.',
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
-        ),
-      ]),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(children: [
+            Icon(isRooted ? Icons.lock_open : Icons.folder_open,
+                color: color, size: 18),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(statusText,
+                  style: Theme.of(context).textTheme.bodySmall),
+            ),
+          ]),
+          if (!isRooted && savedPath != null)
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                style: TextButton.styleFrom(
+                    padding: EdgeInsets.zero,
+                    minimumSize: const Size(0, 28)),
+                onPressed: () async {
+                  await ref
+                      .read(configServiceProvider)
+                      .clearFolderUri(emulatorId);
+                  ref.invalidate(savedFolderUriProvider(emulatorId));
+                },
+                child: const Text('Change folder'),
+              ),
+            ),
+        ],
+      ),
     );
+  }
+
+  String _truncate(String path) {
+    if (path.length <= 42) return path;
+    return '…${path.substring(path.length - 39)}';
   }
 }
 
@@ -164,12 +250,14 @@ class _ProfileTile extends StatelessWidget {
   final bool isRooted;
   final bool pushing;
   final VoidCallback onPush;
+  final VoidCallback? onDelete;
 
   const _ProfileTile({
     required this.profile,
     required this.isRooted,
     required this.pushing,
     required this.onPush,
+    this.onDelete,
   });
 
   @override
@@ -179,23 +267,34 @@ class _ProfileTile extends StatelessWidget {
           padding: const EdgeInsets.all(14),
           child: Row(children: [
             Expanded(
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(profile.name,
-                    style: Theme.of(context).textTheme.titleMedium),
-                const SizedBox(height: 4),
-                Text(profile.description,
-                    style: Theme.of(context).textTheme.bodySmall),
-                const SizedBox(height: 4),
-                Text('${profile.files.length} file(s)',
-                    style: Theme.of(context).textTheme.bodySmall),
-              ]),
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(profile.name,
+                        style: Theme.of(context).textTheme.titleMedium),
+                    const SizedBox(height: 4),
+                    Text(profile.description,
+                        style: Theme.of(context).textTheme.bodySmall),
+                    const SizedBox(height: 4),
+                    Text('${profile.files.length} file(s)',
+                        style: Theme.of(context).textTheme.bodySmall),
+                  ]),
             ),
             const SizedBox(width: 12),
+            if (onDelete != null)
+              IconButton(
+                icon: const Icon(Icons.delete_outline, size: 18),
+                onPressed: onDelete,
+                tooltip: 'Remove imported profile',
+              ),
             FilledButton(
               onPressed: pushing ? null : onPush,
               child: pushing
-                  ? const SizedBox(width: 16, height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                          strokeWidth: 2, color: Colors.white))
                   : const Text('Push'),
             ),
           ]),

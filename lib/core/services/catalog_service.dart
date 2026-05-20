@@ -21,7 +21,7 @@ class CatalogService {
   final Dio _dio;
   CatalogService({Dio? dio}) : _dio = dio ?? Dio();
 
-  Future<EmulatorCatalog> load() async {
+  Future<EmulatorCatalog> load({void Function(String)? onNetworkError}) async {
     // 1 — try remote
     try {
       final response = await _dio.get<String>(
@@ -32,8 +32,8 @@ class CatalogService {
         await _cache(response.data!);
         return EmulatorCatalog.fromJson(jsonDecode(response.data!));
       }
-    } catch (_) {
-      // network unavailable — fall through
+    } catch (e) {
+      onNetworkError?.call(e.toString());
     }
 
     // 2 — try cache

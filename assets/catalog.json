@@ -1,5 +1,5 @@
 {
-  "catalog_version": "1.0.0",
+  "catalog_version": "1.1.0",
   "updated_at": "2026-05-20",
   "emulators": [
     {
@@ -8,7 +8,7 @@
       "description": "Multi-system frontend using libretro cores. Covers NES, SNES, GBA, PS1, N64, and many more with shader support.",
       "platforms": ["multi"],
       "tags": ["frontend", "cores", "shaders"],
-      "icon_url": null,
+      "icon_url": "https://github.com/libretro.png?size=128",
       "sources": {
         "github": {
           "owner": "libretro",
@@ -30,6 +30,14 @@
               { "src": "assets/configs/retroarch/generic/retroarch.cfg", "dest": "retroarch.cfg" },
               { "src": "assets/configs/retroarch/generic/retroarch-core-options.cfg", "dest": "retroarch-core-options.cfg" }
             ]
+          },
+          {
+            "id": "retroarch_ayn_thor",
+            "name": "Ayn Thor (Vulkan / AMOLED)",
+            "description": "Vulkan renderer, AMOLED-tuned CRT shader, reduced-latency settings for Ayn Thor 2 and similar Dimensity/SD handhelds.",
+            "files": [
+              { "src": "assets/configs/retroarch/ayn_thor/retroarch.cfg", "dest": "retroarch.cfg" }
+            ]
           }
         ]
       }
@@ -40,7 +48,7 @@
       "description": "Fast and accurate PSP emulator. Supports upscaling, texture replacement, and save state sync.",
       "platforms": ["psp"],
       "tags": ["psp"],
-      "icon_url": null,
+      "icon_url": "https://github.com/hrydgard.png?size=128",
       "sources": {
         "github": {
           "owner": "hrydgard",
@@ -61,6 +69,14 @@
             "files": [
               { "src": "assets/configs/ppsspp/generic/ppsspp.ini", "dest": "ppsspp.ini" }
             ]
+          },
+          {
+            "id": "ppsspp_ayaneo_pocket_dmg",
+            "name": "AYANeo Pocket DMG (OLED / 4:3)",
+            "description": "4:3 locked aspect ratio, OLED brightness, vertical layout hints for the AYANeo Pocket DMG form factor.",
+            "files": [
+              { "src": "assets/configs/ppsspp/ayaneo_pocket_dmg/ppsspp.ini", "dest": "ppsspp.ini" }
+            ]
           }
         ]
       }
@@ -71,7 +87,7 @@
       "description": "GameCube and Wii emulator. Requires a capable SoC — Snapdragon 8 Gen 2 handles it well.",
       "platforms": ["gamecube", "wii"],
       "tags": ["gamecube", "wii", "demanding"],
-      "icon_url": null,
+      "icon_url": "https://github.com/dolphin-emu.png?size=128",
       "sources": {
         "github": {
           "owner": "dolphin-emu",
@@ -81,10 +97,20 @@
         "play_store": { "package_id": "org.dolphinemu.dolphinemu" }
       },
       "config": {
-        "supported": false,
+        "supported": true,
         "format": "ini",
         "target_path_hint": "dolphin-emu/Config/",
-        "profiles": []
+        "profiles": [
+          {
+            "id": "dolphin_generic",
+            "name": "Generic baseline",
+            "description": "Vulkan backend, dual-core, 2x EFB scale. Good starting point for any capable Android device.",
+            "files": [
+              { "src": "assets/configs/dolphin/generic/Dolphin.ini", "dest": "Dolphin.ini" },
+              { "src": "assets/configs/dolphin/generic/GFX.ini", "dest": "GFX.ini" }
+            ]
+          }
+        ]
       }
     },
     {
@@ -93,7 +119,7 @@
       "description": "PlayStation 1 emulator focused on accuracy and enhancement. Best PS1 experience on Android.",
       "platforms": ["ps1"],
       "tags": ["ps1", "accuracy"],
-      "icon_url": null,
+      "icon_url": "https://github.com/stenzek.png?size=128",
       "sources": {
         "github": {
           "owner": "stenzek",
@@ -103,10 +129,147 @@
         "play_store": null
       },
       "config": {
-        "supported": false,
+        "supported": true,
         "format": "ini",
         "target_path_hint": "duckstation/",
+        "profiles": [
+          {
+            "id": "duckstation_generic",
+            "name": "Generic baseline",
+            "description": "Vulkan, 2x resolution, PGXP geometry correction, per-game memory cards.",
+            "files": [
+              { "src": "assets/configs/duckstation/generic/settings.ini", "dest": "settings.ini" }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "lemuroid",
+      "name": "Lemuroid",
+      "description": "Libretro-based multi-system emulator with a clean Material You UI. Covers NES, SNES, GBA, GB, NDS, PSP, N64, PS1, and more.",
+      "platforms": ["multi"],
+      "tags": ["frontend", "material", "casual"],
+      "icon_url": "https://github.com/Swordfish90.png?size=128",
+      "sources": {
+        "github": {
+          "owner": "Swordfish90",
+          "repo": "Lemuroid",
+          "asset_pattern": "lemuroid-*.apk"
+        },
+        "play_store": { "package_id": "com.swordfish.lemuroid" }
+      },
+      "config": {
+        "supported": false,
+        "format": "json",
+        "target_path_hint": "Lemuroid/",
         "profiles": []
+      }
+    },
+    {
+      "id": "nethersx2",
+      "name": "NetherSX2",
+      "description": "Community-maintained fork of AetherSX2, the best PlayStation 2 emulator for Android. Sideload only.",
+      "platforms": ["ps2"],
+      "tags": ["ps2", "demanding", "sideload"],
+      "icon_url": "https://github.com/nishinji.png?size=128",
+      "sources": {
+        "github": {
+          "owner": "nishinji",
+          "repo": "NetherSX2",
+          "asset_pattern": "NetherSX2-*.apk"
+        },
+        "play_store": null
+      },
+      "config": {
+        "supported": false,
+        "format": "ini",
+        "target_path_hint": "nethersx2/",
+        "profiles": []
+      }
+    },
+    {
+      "id": "citra",
+      "name": "Citra",
+      "description": "Nintendo 3DS emulator. No longer actively developed but existing releases remain playable on capable devices.",
+      "platforms": ["3ds"],
+      "tags": ["3ds", "archived"],
+      "icon_url": "https://github.com/citra-emu.png?size=128",
+      "sources": {
+        "github": {
+          "owner": "citra-emu",
+          "repo": "citra",
+          "asset_pattern": "citra-android-*.apk"
+        },
+        "play_store": null
+      },
+      "config": {
+        "supported": false,
+        "format": "ini",
+        "target_path_hint": "citra-emu/",
+        "profiles": []
+      }
+    },
+    {
+      "id": "melonds",
+      "name": "melonDS",
+      "description": "Accurate Nintendo DS and DS Lite emulator. Local Wi-Fi support, upscaling, and DSi mode.",
+      "platforms": ["nds"],
+      "tags": ["nds", "accuracy", "dsi"],
+      "icon_url": "https://github.com/melonDS-emu.png?size=128",
+      "sources": {
+        "github": {
+          "owner": "melonDS-emu",
+          "repo": "melonDS-android",
+          "asset_pattern": "melonDS-*.apk"
+        },
+        "play_store": null
+      },
+      "config": {
+        "supported": true,
+        "format": "ini",
+        "target_path_hint": "melonDS/",
+        "profiles": [
+          {
+            "id": "melonds_generic",
+            "name": "Generic baseline",
+            "description": "Hardware 3D renderer at 2x scale, linear audio interpolation, natural screen layout.",
+            "files": [
+              { "src": "assets/configs/melonds/generic/melonDS.ini", "dest": "melonDS.ini" }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "flycast",
+      "name": "Flycast",
+      "description": "Sega Dreamcast, NAOMI, and Atomiswave emulator. Solid performance on mid-range and above Android devices.",
+      "platforms": ["dreamcast", "naomi"],
+      "tags": ["dreamcast", "naomi", "sega"],
+      "icon_url": "https://github.com/flyinghead.png?size=128",
+      "sources": {
+        "github": {
+          "owner": "flyinghead",
+          "repo": "flycast",
+          "asset_pattern": "flycast-android-*.apk"
+        },
+        "play_store": { "package_id": "com.flycast.emulator" }
+      },
+      "config": {
+        "supported": true,
+        "format": "cfg",
+        "target_path_hint": "flycast/",
+        "profiles": [
+          {
+            "id": "flycast_generic",
+            "name": "Generic baseline",
+            "description": "Vulkan renderer, 2x internal resolution, per-strip alpha sorting.",
+            "files": [
+              { "src": "assets/configs/flycast/generic/emu.cfg", "dest": "emu.cfg" }
+            ]
+          }
+        ]
       }
     }
   ]

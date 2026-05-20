@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/services/providers.dart';
 import '../../../../shared/theme/app_theme.dart';
+import '../../../catalog/presentation/widgets/emulator_card.dart';
 
 class DetailScreen extends ConsumerWidget {
   final String emulatorId;
@@ -27,14 +28,24 @@ class DetailScreen extends ConsumerWidget {
           body: ListView(
             padding: const EdgeInsets.all(20),
             children: [
-              // Version badge
-              release.when(
-                data: (r) => r != null
-                    ? _Badge(label: r.tagName, color: AppColors.green)
-                    : const SizedBox.shrink(),
-                loading: () => const _Badge(label: 'Fetching…', color: AppColors.muted),
-                error: (_, __) => const SizedBox.shrink(),
-              ),
+              // Icon + version badge row
+              Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
+                EmulatorIcon(url: emulator.iconUrl, size: 64, radius: 14),
+                const SizedBox(width: 14),
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text(emulator.name,
+                      style: Theme.of(context).textTheme.titleLarge),
+                  const SizedBox(height: 6),
+                  release.when(
+                    data: (r) => r != null
+                        ? _Badge(label: r.tagName, color: AppColors.green)
+                        : const SizedBox.shrink(),
+                    loading: () =>
+                        const _Badge(label: 'Fetching…', color: AppColors.muted),
+                    error: (_, __) => const SizedBox.shrink(),
+                  ),
+                ]),
+              ]),
               const SizedBox(height: 16),
               Text(emulator.description,
                   style: Theme.of(context).textTheme.bodyMedium),

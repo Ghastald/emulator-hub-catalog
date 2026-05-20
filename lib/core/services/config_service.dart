@@ -110,6 +110,11 @@ class ConfigService {
         copied.add(f.dest);
       }
       return ConfigPushResult(success: true, copiedFiles: copied);
+    } on ProcessException catch (e) {
+      return ConfigPushResult(
+          success: false,
+          copiedFiles: copied,
+          error: 'Root write failed: ${e.message}');
     } catch (e) {
       return ConfigPushResult(success: false, copiedFiles: copied, error: e.toString());
     }

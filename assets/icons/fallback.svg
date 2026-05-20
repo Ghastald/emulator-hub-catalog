@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <!-- controller body -->
+  <rect x="4" y="15" width="40" height="22" rx="11" fill="#2A2A2A"/>
+  <!-- left d-pad vertical -->
+  <rect x="11" y="21" width="4" height="10" rx="2" fill="#6B6B6B"/>
+  <!-- left d-pad horizontal -->
+  <rect x="8" y="24" width="10" height="4" rx="2" fill="#6B6B6B"/>
+  <!-- right face buttons -->
+  <circle cx="34" cy="23" r="2.2" fill="#6B6B6B"/>
+  <circle cx="38.5" cy="26.5" r="2.2" fill="#6B6B6B"/>
+  <circle cx="29.5" cy="26.5" r="2.2" fill="#6B6B6B"/>
+  <circle cx="34" cy="30" r="2.2" fill="#6B6B6B"/>
+  <!-- centre buttons -->
+  <rect x="20" y="25" width="3.5" height="2.5" rx="1.2" fill="#6B6B6B"/>
+  <rect x="24.5" y="25" width="3.5" height="2.5" rx="1.2" fill="#6B6B6B"/>
+</svg>

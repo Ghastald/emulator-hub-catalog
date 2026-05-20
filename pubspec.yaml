@@ -24,7 +24,7 @@ dependencies:
   permission_handler: ^11.3.1        # Storage permissions (Android 12 and below)
 
   # Root detection
-  flutter_jailbreak_detection: ^1.10.0  # Detects root; enables direct-write path
+  safe_device: ^1.1.0  # Detects root (Android) / jailbreak (iOS); enables direct-write path
 
   # UI
   flutter_riverpod: ^2.5.1           # State management
@@ -43,7 +43,14 @@ flutter:
   uses-material-design: true
   assets:
     - assets/catalog.json
+    - assets/icons/
     - assets/configs/retroarch/generic/retroarch.cfg
     - assets/configs/retroarch/generic/retroarch-core-options.cfg
+    - assets/configs/retroarch/ayn_thor/retroarch.cfg
     - assets/configs/ppsspp/generic/ppsspp.ini
-    - assets/icons/
+    - assets/configs/ppsspp/ayaneo_pocket_dmg/ppsspp.ini
+    - assets/configs/dolphin/generic/Dolphin.ini
+    - assets/configs/dolphin/generic/GFX.ini
+    - assets/configs/duckstation/generic/settings.ini
+    - assets/configs/melonds/generic/melonDS.ini
+    - assets/configs/flycast/generic/emu.cfg
